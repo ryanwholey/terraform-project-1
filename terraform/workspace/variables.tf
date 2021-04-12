@@ -1,3 +1,3 @@
-variable "oauth_client_id" {
-  
+variable "oauth_token_id" {
+
 }
