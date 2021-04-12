@@ -1,6 +1,6 @@
 name: terraform-project-1
-  repo: ryanwholey/terraform-project-1
-  directory: terraform
-  credentials:
-    - foo
-    - bar
+repo: ryanwholey/terraform-project-1
+directory: terraform
+credentials:
+  - foo
+  - bar
