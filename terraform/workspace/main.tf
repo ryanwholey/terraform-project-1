@@ -3,10 +3,9 @@ resource "tfe_workspace" "workspace" {
   organization = "ryanwholey"
 
   vcs_repo {
-    identifier = "ryanwholey/terraform-project-1"
+    identifier     = "ryanwholey/terraform-project-1"
     oauth_token_id = var.oauth_token_id
   }
 
   working_directory = "terraform/src"
 }
-
