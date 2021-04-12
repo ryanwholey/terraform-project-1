@@ -1,6 +1,5 @@
-workspaces:
-- name: terraform-project-1
-  repo: terraform-project-1
+name: terraform-project-1
+  repo: ryanwholey/terraform-project-1
   directory: terraform
   credentials:
     - foo
