@@ -14,5 +14,6 @@ jobs:
         with:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-          aws_bucket: workspace-configs/terraform-project-1
+          aws_bucket: workspace-configs
+          destination_dir: terraform-project-1
           source_dir: .terraform-workspace
