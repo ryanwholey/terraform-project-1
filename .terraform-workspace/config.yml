@@ -1,0 +1,7 @@
+workspaces:
+- name: terraform-project-1
+  repo: terraform-project-1
+  directory: terraform
+  credentials:
+    - foo
+    - bar
