@@ -59,7 +59,8 @@ jobs:
           var_file: /tmp/terraform-workspace/project-config.tfvars
       - persist_to_workspace:
           root: /tmp/terraform-workspace
-            - "./*"
+          paths:
+            - ./*
   apply-terraform-workspace-project:
     executor: docker
     steps:
