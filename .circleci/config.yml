@@ -1,13 +1,15 @@
 version: 2.1
+
 main: &main
   filters:
     branches:
       only: main
+
 orbs:
   terraform: circleci/terraform@2.0.0
 
 parameters:
-  tf_organization:
+  tf_workspace_organization:
     type: string
     default: ryanwholey
     description: The terraform cloud organization
@@ -15,6 +17,14 @@ parameters:
     type: string
     default: /tmp/terraform-workspace
     description: Workspace location
+  tf_workspace_storage_bucket:
+    type: string
+    default: workspae-configs
+    description: s3 bucket for state storage 
+  tf_workspace_var_file:
+    type: string
+    default: project-config.tfvars
+    description: tfvars workspace config file
   tfe_token:
     type: string
     default: $TFE_TOKEN
@@ -44,7 +54,7 @@ jobs:
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
                 config = {
-                  organization = "<< pipeline.parameters.tf_organization >>"
+                  organization = "<< pipeline.parameters.tf_workspace_organization >>"
                   workspaces = {
                     name = "terraform-workspace-manager"
                   }
@@ -59,8 +69,8 @@ jobs:
               variable "config" {}
               terraform {
                 backend "s3" {
-                  bucket = "workspace-configs"
-                  key    = "terraform-project-1.tfstate"
+                  bucket = "<< pipeline.parameters.tf_workspace_storage_bucket" >>
+                  key    = "$CIRCLE_PROJECT_REPONAME.tfstate"
                   region = "us-west-2"
                 }
               }
@@ -69,7 +79,7 @@ jobs:
           path: << pipeline.parameters.tf_workspace_dir >>
       - terraform/plan:
           path: << pipeline.parameters.tf_workspace_dir >>
-          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
+          var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
       - persist_to_workspace:
           root: << pipeline.parameters.tf_workspace_dir >>
           paths:
@@ -83,7 +93,7 @@ jobs:
           at: << pipeline.parameters.tf_workspace_dir >>
       - terraform/apply: 
           path: << pipeline.parameters.tf_workspace_dir >>
-          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
+          var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
 workflows:
   version: 2
   default:
