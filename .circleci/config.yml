@@ -39,6 +39,22 @@ executors:
     docker:
       - image: hashicorp/terraform:0.14.10
 
+commands:
+  terraform-login:
+    parameters:
+      tfe_token:
+        type: string
+        description: TFE token
+      dest:
+        type: string
+        description: Destination to store the CLI config
+      tf_host:
+        type: string
+        default: app.terraform.io
+        description: Terraform host url
+    steps:
+      run: echo 'credentials "<< parameters.tf_host >>" { token = "<< parameters.tfe_token >>" }' \>> << parameters.dest >>
+
 jobs:
   setup-terraform-workspace-project:
     executor: terraform
@@ -96,14 +112,22 @@ jobs:
     executor: terraform
     steps:
       - checkout
+      - terraform-login:
+          tfe_token: << pipeline.parameters.tfe_token >> 
+          dest: /tmp/cli-config
       - terraform/plan:
           path: ./terraform
+          cli_config_file: /tmp/cli-config
   apply-resource-project:
     executor: terraform
     steps:
       - checkout
+      - terraform-login:
+          tfe_token: << pipeline.parameters.tfe_token >> 
+          dest: /tmp/cli-confi
       - terraform/apply:
           path: ./terraform
+          cli_config_file: /tmp/cli-config
 workflows:
   version: 2
   default:
