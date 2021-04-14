@@ -59,15 +59,13 @@ commands:
           EOF
 
 jobs:
-  setup-terraform-workspace-project:
+  plan-workspace-project:
     executor: terraform
     steps:
       - checkout
       - run: |
           mkdir -p << pipeline.parameters.tf_workspace_dir >>
           mkdir -p "<< pipeline.parameters.tf_workspace_dir >>/modules"
-          cp -r modules << pipeline.parameters.tf_workspace_dir >>
-          cp project-config.tfvars << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
           command: |
@@ -83,7 +81,8 @@ jobs:
                 }
               }
               module "project" {
-                source = "./modules/project"
+                source = "github.com/ryanwholey/terraform-workspace-manager//modules/project"
+
                 secrets = data.terraform_remote_state.secrets.outputs.secrets
                 config = var.config
               }
@@ -103,7 +102,7 @@ jobs:
           root: << pipeline.parameters.tf_workspace_dir >>
           paths:
             - ./*
-  apply-terraform-workspace-project:
+  apply-workspace-project:
     executor: terraform
     steps:
       - attach_workspace: 
@@ -121,7 +120,9 @@ jobs:
       - terraform/init:
           path: ./terraform
           cli_config_file: /tmp/cli-config
-      - run: TF_CLI_CONFIG_FILE=/tmp/cli-config terraform plan ./terraform
+      - run: 
+          name: terraform plan
+          command: TF_CLI_CONFIG_FILE=/tmp/cli-config terraform plan ./terraform
   apply-resource-project:
     executor: terraform
     steps:
@@ -136,26 +137,22 @@ workflows:
   version: 2
   default:
     jobs:
-      - setup-terraform-workspace-project:
+      - plan-workspace-project:
           context:
             - terraform
-      - apply-terraform-workspace-project:
+      - apply-workspace-project:
           context:
             - terraform
           requires:
-            - setup-terraform-workspace-project
+            - plan-workspace-project
           <<: *main
       - plan-resource-project:
-          requires: 
-            - setup-terraform-workspace-project
-            - apply-terraform-workspace-project
           context:
             - terraform
       - apply-resource-project:
           context:
             - terraform        
           requires:
-            - setup-terraform-workspace-project
-            - apply-terraform-workspace-project
+            - apply-workspace-project
             - plan-resource-project
           <<: *main
