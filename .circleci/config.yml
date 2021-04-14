@@ -5,7 +5,6 @@ main: &main
       only: main
 orbs:
   terraform: circleci/terraform@2.0.0
-  ghpr: narrativescience/ghpr@1.1.1
 
 parameters:
   tf_organization:
