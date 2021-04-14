@@ -41,7 +41,7 @@ executors:
 
 jobs:
   setup-terraform-workspace-project:
-    executor: teraform
+    executor: terraform
     steps:
       - checkout
       - run: mkdir -p << pipeline.parameters.tf_workspace_dir >>
@@ -85,7 +85,7 @@ jobs:
           paths:
             - ./*
   apply-terraform-workspace-project:
-    executor: docker
+    executor: terraform
     steps:
       - terraform/install:
           terraform_version: << pipeline.parameters.tf_version >>
