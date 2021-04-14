@@ -19,7 +19,7 @@ parameters:
     description: Directory to run terraform from
   tf_workspace_storage_bucket:
     type: string
-    default: workspae-configs
+    default: workspace-configs
     description: s3 bucket for state storage 
   tf_workspace_var_file:
     type: string
