@@ -12,6 +12,12 @@ jobs:
     executor: docker
     steps:
       - run: echo publish
+
+main: &main
+  filters:
+    branches:
+      only: main
+
 workflows:
   version: 2
   default:
@@ -19,7 +25,3 @@ workflows:
       - build
       - publish:
           <<: *main
-main: &main
-  filters:
-    branches:
-      only: main
