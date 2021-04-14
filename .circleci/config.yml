@@ -17,8 +17,8 @@ workflows:
   default:
     jobs:
       - build
-      - publish
-        <<: *master
+      - publish:
+          <<: *main
 main: &main
   filters:
     branches:
