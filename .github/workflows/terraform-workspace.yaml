@@ -56,5 +56,7 @@ jobs:
           EOF
           cp project-config.tfvars $dir
           cd $dir
+          ls
+          ls modules
           terraform init
           terraform apply -auto-approve -var-file project-config.tfvars
