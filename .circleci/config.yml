@@ -1,0 +1,25 @@
+version: 2.1
+executors:
+  docker:
+    docker:
+      - image: cimg/base:2020.01
+jobs:
+  build:
+    executor: docker
+    steps:
+      - run: echo build
+  publish:
+    executor: docker
+    steps:
+      - run: echo publish
+workflows:
+  version: 2
+  default:
+    jobs:
+      - build
+      - publish
+        <<: *master
+main: &main
+  filters:
+    branches:
+      only: main
