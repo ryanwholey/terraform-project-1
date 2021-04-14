@@ -33,23 +33,17 @@ parameters:
     type: string
     default: $TFE_TOKEN
     description: TFE token
-  tf_version:
-    type: string
-    default: 0.14.10
-    description: Terraform CLI version
 
 executors:
-  docker:
+  terraform:
     docker:
-      - image: cimg/base:2020.01
+      - image: hashicorp/terraform:0.14.10
 
 jobs:
   setup-terraform-workspace-project:
-    executor: docker
+    executor: teraform
     steps:
       - checkout
-      - terraform/install:
-          terraform_version: << pipeline.parameters.tf_version >>
       - run: mkdir -p << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
@@ -83,8 +77,6 @@ jobs:
                 }
               }
             EOF
-      - terraform/init:
-          path: << pipeline.parameters.tf_workspace_dir >>
       - terraform/plan:
           path: << pipeline.parameters.tf_workspace_dir >>
           var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
