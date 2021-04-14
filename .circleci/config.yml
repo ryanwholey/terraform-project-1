@@ -44,7 +44,7 @@ jobs:
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
                 config = {
-                  organization = << pipeline.parameters.tf_organization >>
+                  organization = "<< pipeline.parameters.tf_organization >>"
                   workspaces = {
                     name = "terraform-workspace-manager"
                   }
