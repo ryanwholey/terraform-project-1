@@ -33,6 +33,7 @@ jobs:
                   workspaces = {
                     name = "terraform-workspace-manager"
                   }
+                  token = "$TFE_TOKEN"
                 }
               }
               module "project" {
@@ -54,6 +55,10 @@ jobs:
       - terraform/plan:
           path: /tmp/terraform-workspace
           var_file: project-config.tfvars
+      - persist_to_workspace:
+          root: .
+          paths:
+            plan.out
 workflows:
   version: 2
   default:
