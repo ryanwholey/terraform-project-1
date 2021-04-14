@@ -10,14 +10,6 @@ executors:
     docker:
       - image: cimg/base:2020.01
 jobs:
-  apply-terraform-workspace-project:
-    executor: docker
-    steps:
-      - terraform/install:
-          terraform_version: 0.14.10
-      - attach_workspace: 
-          at: './plan.out'
-      - run: cat plan.out
 
   setup-terraform-workspace-project:
     executor: docker
@@ -34,6 +26,7 @@ jobs:
           command: |
             mkdir -p "$TF_PROJECT_DIR/modules"
             cp -r modules "$TF_PROJECT_DIR"
+            cp project-config.tfvars $TF_PROJECT_DIR
             cat \<<EOF > "$TF_PROJECT_DIR/main.tf"
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
@@ -63,11 +56,24 @@ jobs:
           path: /tmp/terraform-workspace
       - terraform/plan:
           path: /tmp/terraform-workspace
-          var_file: project-config.tfvars
+          var_file: /tmp/terraform-workspace/project-config.tfvars
+      - run: |
+        cp plan.out /tmp/terraform-workspace
       - persist_to_workspace:
-          root: .
+          root: /tmp/terraform-workspace
           paths:
-            plan.out
+            - plan.out
+            - project-config.tfvars
+  apply-terraform-workspace-project:
+    executor: docker
+    steps:
+      - terraform/install:
+          terraform_version: 0.14.10
+      - attach_workspace: 
+          at: /tmp/terraform-workspace/plan.out
+      - terraform/apply: 
+          path: /tmp/terraform-workspace
+          var_file: /tmp/terraform-workspace/project-config.tfvars
 workflows:
   version: 2
   default:
