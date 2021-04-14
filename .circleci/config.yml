@@ -1,27 +1,58 @@
 version: 2.1
-executors:
-  docker:
-    docker:
-      - image: cimg/base:2020.01
-jobs:
-  build:
-    executor: docker
-    steps:
-      - run: echo build
-  publish:
-    executor: docker
-    steps:
-      - run: echo publish
-
 main: &main
   filters:
     branches:
       only: main
+orbs:
+  terraform: circleci/terraform@2.0.0
+executors:
+  docker:
+    docker:
+      - image: cimg/base:2020.01
 
+jobs:
+  setup-terraform-project:
+    executor: docker
+    steps:
+      - checkout
+      - run: 
+          command: |
+            dir=$(mktemp -d)
+            echo 'export TF_PROJECT_DIR=$dir' >> $BASH_ENV
+      - run:
+          name: Setup terraform project workspace
+          command: |
+            mkdir -p "$TF_PROJECT_DIR/modules"
+            cp -r modules "$TF_PROJECT_DIR"
+            cat << EOF > "$TF_PROJECT_DIR/main.tf"
+              data "terraform_remote_state" "secrets" {
+                backend = "remote"
+                config = {
+                  organization = "ryanwholey"
+                  workspaces = {
+                    name = "terraform-workspace-manager"
+                  }
+                }
+              }
+              module "project" {
+                source = "./modules/project"
+                secrets = data.terraform_remote_state.secrets.outputs.secrets
+                config = var.config
+              }
+              variable "config" {}
+              terraform {
+                backend "s3" {
+                  bucket = "workspace-configs"
+                  key    = "terraform-project-1.tfstate"
+                  region = "us-west-2"
+                }
+              }
+            EOF
+      - run: echo $TF_PROJECT_DIR
 workflows:
   version: 2
   default:
     jobs:
-      - build
-      - publish:
-          <<: *main
+      - setup-terraform-project:
+          context:
+            - terraform
