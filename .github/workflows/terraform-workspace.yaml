@@ -14,7 +14,6 @@ jobs:
       AWS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
-      TF_VAR_oauth_token_id: ${{ secrets.OAUTH_TOKEN_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,5 +55,10 @@ jobs:
           EOF
           cp project-config.tfvars $dir
           cd $dir
+          cat << EOF > $dir/.terraformrc
+          credentials "app.terraform.io" {
+            token = "${{ secrets.TFE_TOKEN }}"
+          }
+          EOF
           terraform init -backend-config="access_key=${{ secrets.AWS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" -backend-config="region=us-west-2"
           terraform apply -auto-approve -var-file project-config.tfvars
