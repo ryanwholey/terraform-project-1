@@ -48,7 +48,7 @@ jobs:
 
             terraform {
               backend "s3" {
-                bucket = data.terraform_remote_state.secrets.outputs.storage_bucket
+                bucket = workspace-configs
                 key    = "terraform-project-1.tfstate"
                 region = "us-west-2"
               }
