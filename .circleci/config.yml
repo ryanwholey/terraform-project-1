@@ -10,23 +10,35 @@ executors:
     docker:
       - image: cimg/base:2020.01
 
-commands:
-  terraform-install:
-    steps:
-      - run: 
-          command: |
-            curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/0.14.10/terraform_0.14.10_linux_386.zip
-            sudo unzip -d /usr/local/bin /tmp/terraform.zip
+# commands:
+#   terraform-install:
+#     parameters:
+#       version:
+#         default: '0.14.10'
+#         description: |
+#           "Terraform CLI version"
+#         type: string
+#     steps:
+#       - run: 
+#           command: |
+#             curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/<< parameters.version >>/terraform_<< parameters.version >>_linux_386.zip
+#             sudo unzip -d /usr/local/bin /tmp/terraform.zip
+#   terraform-install:
+#     steps:
+#       - run:
+#           command: |
+#             terraform init        
 jobs:
-
   setup-terraform-workspace-project:
     executor: docker
     steps:
       - checkout
-      - terraform-install
+      - terraform/install:
+          terraform_version: 0.14.10
       - run: 
           command: |
-            echo 'export TF_PROJECT_DIR=$(mktemp -d)' >> $BASH_ENV
+            mkdir -p /tmp/terraform-workspace
+            echo 'export TF_PROJECT_DIR=/tmp/terraform-workspace' >> $BASH_ENV
       - run:
           name: Setup terraform project workspace
           command: |
@@ -56,7 +68,8 @@ jobs:
                 }
               }
             EOF
-            
+      - terraform/init:
+          path: /tmp/terraform-workspace
 workflows:
   version: 2
   default:
