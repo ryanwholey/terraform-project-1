@@ -53,6 +53,7 @@ jobs:
           path: /tmp/terraform-workspace
       - terraform/plan:
           path: /tmp/terraform-workspace
+          var-file: project-config.tfvars
 workflows:
   version: 2
   default:
