@@ -21,7 +21,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       - name: Apply
-        run: |
+        run: |+
           dir=$(mktemp -d)
           cp workspace.tfvars $dir
           mkdir -p "$dir/modules"
