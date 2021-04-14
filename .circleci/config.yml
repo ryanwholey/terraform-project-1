@@ -5,37 +5,50 @@ main: &main
       only: main
 orbs:
   terraform: circleci/terraform@2.0.0
+
+parameters:
+  tf_organization:
+    type: string
+    default: ryanwholey
+    description: The terraform cloud organization
+  tf_workspace_dir:
+    type: string
+    default: /tmp/terraform-workspace
+    description: Workspace location
+  tfe_token:
+    type: string
+    default: $TFE_TOKEN
+    description: TFE token
+
 executors:
   docker:
     docker:
       - image: cimg/base:2020.01
-jobs:
 
+jobs:
   setup-terraform-workspace-project:
     executor: docker
     steps:
       - checkout
       - terraform/install:
           terraform_version: 0.14.10
-      - run: 
-          command: |
-            mkdir -p /tmp/terraform-workspace
-            echo 'export TF_PROJECT_DIR=/tmp/terraform-workspace' >> $BASH_ENV
+      - run: mkdir -p << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
           command: |
-            mkdir -p "$TF_PROJECT_DIR/modules"
-            cp -r modules "$TF_PROJECT_DIR"
-            cp project-config.tfvars $TF_PROJECT_DIR
-            cat \<<EOF > "$TF_PROJECT_DIR/main.tf"
+            dir=<< pipeline.parameters.tf_workspace_dir >>
+            mkdir -p "$dir/modules"
+            cp -r modules $dir
+            cp project-config.tfvars $dir
+            cat \<<EOF > "$dir/main.tf"
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
                 config = {
-                  organization = "ryanwholey"
+                  organization = "<< pipeline.parameters.tf_organization >>"
                   workspaces = {
                     name = "terraform-workspace-manager"
                   }
-                  token = "$TFE_TOKEN"
+                  token = "<< pipeline.parameters.tfe_token >>"
                 }
               }
               module "project" {
@@ -53,12 +66,12 @@ jobs:
               }
             EOF
       - terraform/init:
-          path: /tmp/terraform-workspace
+          path: << pipeline.parameters.tf_workspace_dir >>
       - terraform/plan:
-          path: /tmp/terraform-workspace
-          var_file: /tmp/terraform-workspace/project-config.tfvars
+          path: << pipeline.parameters.tf_workspace_dir >>
+          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
       - persist_to_workspace:
-          root: /tmp/terraform-workspace
+          root: << pipeline.parameters.tf_workspace_dir >>
           paths:
             - ./*
   apply-terraform-workspace-project:
@@ -67,10 +80,10 @@ jobs:
       - terraform/install:
           terraform_version: 0.14.10
       - attach_workspace: 
-          at: /tmp/terraform-workspace/
+          at: << pipeline.parameters.tf_workspace_dir >>
       - terraform/apply: 
-          path: /tmp/terraform-workspace
-          var_file: /tmp/terraform-workspace/project-config.tfvars
+          path: << pipeline.parameters.tf_workspace_dir >>
+          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
 workflows:
   version: 2
   default:
@@ -83,3 +96,4 @@ workflows:
             - terraform
           requires:
             - setup-terraform-workspace-project
+          <<: *main
