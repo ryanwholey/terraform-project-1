@@ -92,6 +92,16 @@ jobs:
       - terraform/apply: 
           path: << pipeline.parameters.tf_workspace_dir >>
           var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
+  plan-resource-project:
+    executor: terraform
+    steps:
+      - terraform/plan:
+          path: terraform
+  apply-resource-project:
+    executor: terraform
+    steps:
+      - terraform/apply:
+          path: terraform
 workflows:
   version: 2
   default:
@@ -104,4 +114,18 @@ workflows:
             - terraform
           requires:
             - setup-terraform-workspace-project
+          <<: *main
+      - plan-resource-project:
+          requires: 
+            - setup-terraform-workspace-project
+            - apply-terraform-workspace-project
+          context:
+            - terraform
+      - apply-resource-project:
+          context:
+            - terraform        
+          requires:
+            - setup-terraform-workspace-project
+            - apply-terraform-workspace-project
+            - plan-resource-project
           <<: *main
