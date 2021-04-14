@@ -60,7 +60,7 @@ jobs:
       - persist_to_workspace:
           root: /tmp/terraform-workspace
           paths:
-            - *
+            - /tmp/terraform-workspace/*
   apply-terraform-workspace-project:
     executor: docker
     steps:
