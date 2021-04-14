@@ -83,3 +83,4 @@ workflows:
             - terraform
           requires:
             - setup-terraform-workspace-project
+          <<: *main
