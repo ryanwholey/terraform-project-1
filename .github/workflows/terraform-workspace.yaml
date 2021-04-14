@@ -21,39 +21,39 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
       - name: Apply
-        run: |+
+        run: |
           dir=$(mktemp -d)
           cp workspace.tfvars $dir
           mkdir -p "$dir/modules"
           cp -r modules/project "$dir/modules"
           cat << EOF > "$dir/main.tf"
-data "terraform_remote_state" "secrets" {
-  backend = "remote"
-  config = {
-    organization = "ryanwholey"
+            data "terraform_remote_state" "secrets" {
+              backend = "remote"
+              config = {
+                organization = "ryanwholey"
 
-    workspaces = {
-      name = "terraform-workspace-manager"
-    }
-  }
-}
+                workspaces = {
+                  name = "terraform-workspace-manager"
+                }
+              }
+            }
 
-module "project" {
-  source = "modules/project"
+            module "project" {
+              source = "modules/project"
 
-  secrets = data.terraform_remote_state.secrets.outputs.secrets
-  config = var.config
-}
+              secrets = data.terraform_remote_state.secrets.outputs.secrets
+              config = var.config
+            }
 
-variable "config" {}
+            variable "config" {}
 
-terraform {
-  backend "s3" {
-    bucket = data.terraform_remote_state.secrets.outputs.storage_bucket
-    key    = "terraform-project-1.tfstate"
-    region = "us-west-2"
-  }
-}
-EOF
+            terraform {
+              backend "s3" {
+                bucket = data.terraform_remote_state.secrets.outputs.storage_bucket
+                key    = "terraform-project-1.tfstate"
+                region = "us-west-2"
+              }
+            }
+          EOF
           terraform init $dir
           terraform apply -auto-approve $dir/.terraform/project -var-file project-config.tfvars
