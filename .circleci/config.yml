@@ -10,6 +10,12 @@ executors:
     docker:
       - image: cimg/base:2020.01
 jobs:
+  apply-terraform-workspace-project:
+    executor: docker
+    steps:
+      - attach_workspace: './plan.out'
+      - run: echo plan.out
+
   setup-terraform-workspace-project:
     executor: docker
     steps:
@@ -66,3 +72,8 @@ workflows:
       - setup-terraform-workspace-project:
           context:
             - terraform
+      - apply-terraform-workspace-project:
+          context:
+            - terraform
+          requires:
+            - setup-terraform-workspace-project
