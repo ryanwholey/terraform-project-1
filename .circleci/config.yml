@@ -8,7 +8,7 @@ orbs:
 executors:
   docker:
     docker:
-      - image: ubuntu:latest
+      - image: cimg/base:2020.01
 
 # commands:
 #   terraform-install:
@@ -68,6 +68,7 @@ jobs:
                 }
               }
             EOF
+            
       - terraform/init:
           path: /tmp/terraform-workspace
 workflows:
