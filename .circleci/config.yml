@@ -32,11 +32,11 @@ jobs:
       - checkout
       - terraform/install:
           terraform_version: 0.14.10
-      - run: mkdir -p << parameters.tf_workspace_dir >>
+      - run: mkdir -p << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
           command: |
-            dir=<< parameters.tf_workspace_dir >>
+            dir=<< pipeline.parameters.tf_workspace_dir >>
             mkdir -p "$dir/modules"
             cp -r modules $dir
             cp project-config.tfvars $dir
@@ -44,11 +44,11 @@ jobs:
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
                 config = {
-                  organization = << parameters.tf_organization >>
+                  organization = << pipeline.parameters.tf_organization >>
                   workspaces = {
                     name = "terraform-workspace-manager"
                   }
-                  token = "<< parameters.tfe_token >>"
+                  token = "<< pipeline.parameters.tfe_token >>"
                 }
               }
               module "project" {
@@ -66,12 +66,12 @@ jobs:
               }
             EOF
       - terraform/init:
-          path: << parameters.tf_workspace_dir >>
+          path: << pipeline.parameters.tf_workspace_dir >>
       - terraform/plan:
-          path: << parameters.tf_workspace_dir >>
-          var_file: << parameters.tf_workspace_dir >>/project-config.tfvars
+          path: << pipeline.parameters.tf_workspace_dir >>
+          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
       - persist_to_workspace:
-          root: << parameters.tf_workspace_dir >>
+          root: << pipeline.parameters.tf_workspace_dir >>
           paths:
             - ./*
   apply-terraform-workspace-project:
@@ -80,10 +80,10 @@ jobs:
       - terraform/install:
           terraform_version: 0.14.10
       - attach_workspace: 
-          at: << parameters.tf_workspace_dir >>
+          at: << pipeline.parameters.tf_workspace_dir >>
       - terraform/apply: 
-          path: << parameters.tf_workspace_dir >>
-          var_file: << parameters.tf_workspace_dir >>/project-config.tfvars
+          path: << pipeline.parameters.tf_workspace_dir >>
+          var_file: << pipeline.parameters.tf_workspace_dir >>/project-config.tfvars
 workflows:
   version: 2
   default:
