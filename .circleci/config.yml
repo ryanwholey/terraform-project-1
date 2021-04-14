@@ -59,7 +59,7 @@ commands:
           EOF
 
 jobs:
-  plan-workspace-project:
+  create-workspace-project:
     executor: terraform
     steps:
       - checkout
@@ -95,13 +95,18 @@ jobs:
                 }
               }
             EOF
-      - terraform/plan:
-          path: << pipeline.parameters.tf_workspace_dir >>
-          var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
       - persist_to_workspace:
           root: << pipeline.parameters.tf_workspace_dir >>
           paths:
             - ./*
+  plan-workspace-project:
+    executor: terraform
+    steps:
+      - attach_workspace: 
+          at: << pipeline.parameters.tf_workspace_dir >>
+      - terraform/plan:
+          path: << pipeline.parameters.tf_workspace_dir >>
+          var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
   apply-workspace-project:
     executor: terraform
     steps:
@@ -137,14 +142,19 @@ workflows:
   version: 2
   default:
     jobs:
+      - create-workspace-project:
+          context:
+            - terraform
       - plan-workspace-project:
+          requires:
+            - create-workspace-project
           context:
             - terraform
       - apply-workspace-project:
           context:
             - terraform
           requires:
-            - plan-workspace-project
+            - create-workspace-project
           <<: *main
       - plan-resource-project:
           context:
@@ -154,5 +164,4 @@ workflows:
             - terraform        
           requires:
             - apply-workspace-project
-            - plan-resource-project
           <<: *main
