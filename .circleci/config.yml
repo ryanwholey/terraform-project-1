@@ -24,7 +24,7 @@ jobs:
           command: |
             mkdir -p "$TF_PROJECT_DIR/modules"
             cp -r modules "$TF_PROJECT_DIR"
-            cat << EOF > "$TF_PROJECT_DIR/main.tf"
+            cat \<<EOF > "$TF_PROJECT_DIR/main.tf"
               data "terraform_remote_state" "secrets" {
                 backend = "remote"
                 config = {
