@@ -1,8 +1,7 @@
 resource "tfe_workspace" "workspace" {
-  name         = config["name"]
+  name         = var.config["name"]
   organization = "ryanwholey"
 }
-
 
 resource "tfe_variable" "test" {
   for_each = var.secrets
