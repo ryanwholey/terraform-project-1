@@ -95,11 +95,13 @@ jobs:
   plan-resource-project:
     executor: terraform
     steps:
+      - checkout
       - terraform/plan:
           path: ./terraform
   apply-resource-project:
     executor: terraform
     steps:
+      - checkout
       - terraform/apply:
           path: ./terraform
 workflows:
