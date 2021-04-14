@@ -65,7 +65,7 @@ jobs:
       - checkout
       - run: |
           mkdir -p << pipeline.parameters.tf_workspace_dir >>
-          mkdir -p "<< pipeline.parameters.tf_workspace_dir >>/modules"
+          cp << pipeline.parameters.tf_workspace_var_file >> << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
           command: |
