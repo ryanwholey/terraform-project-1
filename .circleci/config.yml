@@ -53,10 +53,10 @@ commands:
         default: app.terraform.io
         description: Terraform host url
     steps:
-      run: |
-        cat \<<EOF > << parameters.dest >> 
-          credentials "<< parameters.tf_host >>" { token = "<< parameters.tfe_token >>" }
-        EOF
+      - run: |
+          cat \<<EOF > << parameters.dest >> 
+            credentials "<< parameters.tf_host >>" { token = "<< parameters.tfe_token >>" }
+          EOF
 
 jobs:
   setup-terraform-workspace-project:
