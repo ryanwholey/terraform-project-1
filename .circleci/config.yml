@@ -57,20 +57,17 @@ jobs:
       - terraform/plan:
           path: /tmp/terraform-workspace
           var_file: /tmp/terraform-workspace/project-config.tfvars
-      - run: |
-        cp plan.out /tmp/terraform-workspace
       - persist_to_workspace:
           root: /tmp/terraform-workspace
           paths:
-            - plan.out
-            - project-config.tfvars
+            - *
   apply-terraform-workspace-project:
     executor: docker
     steps:
       - terraform/install:
           terraform_version: 0.14.10
       - attach_workspace: 
-          at: /tmp/terraform-workspace/plan.out
+          at: /tmp/terraform-workspace/
       - terraform/apply: 
           path: /tmp/terraform-workspace
           var_file: /tmp/terraform-workspace/project-config.tfvars
