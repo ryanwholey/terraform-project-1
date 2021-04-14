@@ -12,10 +12,11 @@ executors:
 
 commands:
   terraform-install:
-    - run: 
-        command: |
-          curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/0.14.10/terraform_0.14.10_linux_386.zip
-          sudo unzip -d /usr/local/bin /tmp/terraform.zip
+    steps:
+      - run: 
+          command: |
+            curl -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/0.14.10/terraform_0.14.10_linux_386.zip
+            sudo unzip -d /usr/local/bin /tmp/terraform.zip
 jobs:
 
   setup-terraform-workspace-project:
