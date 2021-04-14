@@ -96,12 +96,12 @@ jobs:
     executor: terraform
     steps:
       - terraform/plan:
-          path: terraform
+          path: ./terraform
   apply-resource-project:
     executor: terraform
     steps:
       - terraform/apply:
-          path: terraform
+          path: ./terraform
 workflows:
   version: 2
   default:
