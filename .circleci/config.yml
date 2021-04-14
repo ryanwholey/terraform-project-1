@@ -13,9 +13,11 @@ jobs:
   apply-terraform-workspace-project:
     executor: docker
     steps:
+      - terraform/install:
+          terraform_version: 0.14.10
       - attach_workspace: 
           at: './plan.out'
-      - run: echo plan.out
+      - run: cat plan.out
 
   setup-terraform-workspace-project:
     executor: docker
