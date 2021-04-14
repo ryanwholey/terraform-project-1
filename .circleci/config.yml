@@ -39,6 +39,25 @@ executors:
     docker:
       - image: hashicorp/terraform:0.14.10
 
+commands:
+  terraform-login:
+    parameters:
+      tfe_token:
+        type: string
+        description: TFE token
+      dest:
+        type: string
+        description: Destination to store the CLI config
+      tf_host:
+        type: string
+        default: app.terraform.io
+        description: Terraform host url
+    steps:
+      - run: |
+          cat \<<EOF > << parameters.dest >> 
+            credentials "<< parameters.tf_host >>" { token = "<< parameters.tfe_token >>" }
+          EOF
+
 jobs:
   setup-terraform-workspace-project:
     executor: terraform
@@ -92,6 +111,27 @@ jobs:
       - terraform/apply: 
           path: << pipeline.parameters.tf_workspace_dir >>
           var_file: << pipeline.parameters.tf_workspace_dir >>/<< pipeline.parameters.tf_workspace_var_file >>
+  plan-resource-project:
+    executor: terraform
+    steps:
+      - checkout
+      - terraform-login:
+          tfe_token: << pipeline.parameters.tfe_token >> 
+          dest: /tmp/cli-config
+      - terraform/init:
+          path: ./terraform
+          cli_config_file: /tmp/cli-config
+      - run: TF_CLI_CONFIG_FILE=/tmp/cli-config terraform plan ./terraform
+  apply-resource-project:
+    executor: terraform
+    steps:
+      - checkout
+      - terraform-login:
+          tfe_token: << pipeline.parameters.tfe_token >> 
+          dest: /tmp/cli-config
+      - terraform/apply:
+          path: ./terraform
+          cli_config_file: /tmp/cli-config
 workflows:
   version: 2
   default:
@@ -104,4 +144,18 @@ workflows:
             - terraform
           requires:
             - setup-terraform-workspace-project
+          <<: *main
+      - plan-resource-project:
+          requires: 
+            - setup-terraform-workspace-project
+            - apply-terraform-workspace-project
+          context:
+            - terraform
+      - apply-resource-project:
+          context:
+            - terraform        
+          requires:
+            - setup-terraform-workspace-project
+            - apply-terraform-workspace-project
+            - plan-resource-project
           <<: *main

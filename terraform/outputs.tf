@@ -1,3 +1,3 @@
 output "value" {
-  value = "test"
+  value = "static"
 }
