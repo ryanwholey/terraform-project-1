@@ -16,7 +16,7 @@ parameters:
   tf_workspace_dir:
     type: string
     default: /tmp/terraform-workspace
-    description: Workspace location
+    description: Directory to run terraform from
   tf_workspace_storage_bucket:
     type: string
     default: workspae-configs
@@ -25,6 +25,10 @@ parameters:
     type: string
     default: project-config.tfvars
     description: tfvars workspace config file
+  tf_workspace_secret_workspace:
+    type: string
+    default: terraform-workspace-manager
+    description: Remote repo that outpts a secrets map
   tfe_token:
     type: string
     default: $TFE_TOKEN
@@ -56,7 +60,7 @@ jobs:
                 config = {
                   organization = "<< pipeline.parameters.tf_workspace_organization >>"
                   workspaces = {
-                    name = "terraform-workspace-manager"
+                    name = "<<pipeline.parameters.tf_workspace_secret_workspace >>"
                   }
                   token = "<< pipeline.parameters.tfe_token >>"
                 }
@@ -69,7 +73,7 @@ jobs:
               variable "config" {}
               terraform {
                 backend "s3" {
-                  bucket = "<< pipeline.parameters.tf_workspace_storage_bucket" >>
+                  bucket = "<< pipeline.parameters.tf_workspace_storage_bucket >>"
                   key    = "$CIRCLE_PROJECT_REPONAME.tfstate"
                   region = "us-west-2"
                 }
