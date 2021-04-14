@@ -33,6 +33,10 @@ parameters:
     type: string
     default: $TFE_TOKEN
     description: TFE token
+  tf_version:
+    type: string
+    default: 0.14.10
+    description: Terraform CLI version
 
 executors:
   docker:
@@ -45,7 +49,7 @@ jobs:
     steps:
       - checkout
       - terraform/install:
-          terraform_version: 0.14.10
+          terraform_version: << pipeline.parameters.tf_version >>
       - run: mkdir -p << pipeline.parameters.tf_workspace_dir >>
       - run:
           name: Setup terraform project workspace
@@ -92,7 +96,7 @@ jobs:
     executor: docker
     steps:
       - terraform/install:
-          terraform_version: 0.14.10
+          terraform_version: << pipeline.parameters.tf_version >>
       - attach_workspace: 
           at: << pipeline.parameters.tf_workspace_dir >>
       - terraform/apply: 
