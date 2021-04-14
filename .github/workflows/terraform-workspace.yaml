@@ -23,7 +23,6 @@ jobs:
       - name: Apply
         run: |
           dir=$(mktemp -d)
-          cp workspace.tfvars $dir
           mkdir -p "$dir/modules"
           cp -r modules/project "$dir/modules"
           cat << EOF > "$dir/main.tf"
@@ -55,5 +54,7 @@ jobs:
               }
             }
           EOF
-          terraform init $dir
-          terraform apply -auto-approve $dir/.terraform/project -var-file project-config.tfvars
+          cp project-config.tfvars $dir
+          cd $dir
+          terraform init
+          terraform apply -auto-approve -var-file project-config.tfvars
