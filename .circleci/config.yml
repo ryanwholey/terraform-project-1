@@ -17,9 +17,7 @@ jobs:
       - checkout
       - run: 
           command: |
-            dir=$(mktemp -d)
-            echo 'export TF_PROJECT_DIR=$dir' >> $BASH_ENV
-            echo $TF_PROJECT_DIR
+            echo 'export TF_PROJECT_DIR=$(mktemp -d)' >> $BASH_ENV
       - run:
           name: Setup terraform project workspace
           command: |
