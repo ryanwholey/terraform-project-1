@@ -13,7 +13,8 @@ jobs:
   apply-terraform-workspace-project:
     executor: docker
     steps:
-      - attach_workspace: './plan.out'
+      - attach_workspace: 
+          at: './plan.out'
       - run: echo plan.out
 
   setup-terraform-workspace-project:
