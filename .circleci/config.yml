@@ -121,14 +121,14 @@ jobs:
       - terraform/init:
           path: ./terraform
           cli_config_file: /tmp/cli-config
-      - run: terraform plan ./terraform -backend-config=/tmp/cli-config
+      - run: TF_CLI_CONFIG_FILE=/tmp/cli-config terraform plan ./terraform
   apply-resource-project:
     executor: terraform
     steps:
       - checkout
       - terraform-login:
           tfe_token: << pipeline.parameters.tfe_token >> 
-          dest: /tmp/cli-confi
+          dest: /tmp/cli-config
       - terraform/apply:
           path: ./terraform
           cli_config_file: /tmp/cli-config
